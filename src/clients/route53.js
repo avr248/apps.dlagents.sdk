@@ -19,7 +19,7 @@ export const createHostedZone = async (subDomain) => {
     return response;
 };
 
-export const changeResourceRecordToNS = async (
+export const changeResourceRecordNS = async (
     domain,
     ns1,
     ns2,
@@ -54,16 +54,33 @@ export const changeResourceRecordToNS = async (
     return response;
 };
 
-// catalogResourceRecordInput
-export const changeResourceRecord = async (input) => {
+export const changeResourceRecordCNAME = async (name, value, hzid) => {
     const response = await rout53Client.send(
-        new ChangeResourceRecordSetsCommand(input)
+        new ChangeResourceRecordSetsCommand({
+            ChangeBatch: {
+                Changes: [
+                    {
+                        Action: "UPSERT",
+                        ResourceRecordSet: {
+                            Name: name,
+                            Type: "CNAME",
+                            TTL: 60 * 5,
+                            ResourceRecords: [
+                                {
+                                    Value: value,
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+            HostedZoneId: hzid,
+        })
     );
     return response;
 };
 
-// catalogValidateCertificateInput
-export const validateCertificate = async (input) => {
+export const changeResourceRecordAalias = async (input) => {
     const response = await rout53Client.send(
         new ChangeResourceRecordSetsCommand(input)
     );

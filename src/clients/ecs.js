@@ -60,12 +60,10 @@ export const createService = async (project, app, tgid) => {
             role: "",
             networkConfiguration: {
                 awsvpcConfiguration: {
-                    // "subnet-0ed009ba424c7bd32", "subnet-073eef19cdc0e5fa7"
                     subnets: [
                         process.env.SUBNET_PRIVATE_1,
                         process.env.SUBNET_PRIVATE_2,
                     ],
-                    // "sg-01ae3bc7f43f1dc30", "sg-01d56bc3c428c7995"
                     securityGroups: [
                         process.env.SECURITY_GROUP_1,
                         process.env.SECURITY_GROUP_2,
@@ -84,8 +82,3 @@ export const createService = async (project, app, tgid) => {
     );
     return response;
 };
-
-SUBNET_PRIVATE_1;
-SUBNET_PRIVATE_2;
-SECURITY_GROUP_1;
-SECURITY_GROUP_2;
