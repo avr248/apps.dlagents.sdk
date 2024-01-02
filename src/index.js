@@ -9,11 +9,7 @@ import {
     CreateTargetGroupCommand,
     CreateRuleCommand,
 } from "@aws-sdk/client-elastic-load-balancing-v2";
-import {
-    Route53Client,
-    CreateHostedZoneCommand,
-    ChangeResourceRecordSetsCommand,
-} from "@aws-sdk/client-route-53";
+
 import {
     ACMClient,
     RequestCertificateCommand,
@@ -30,11 +26,6 @@ import catalogValidateCertificateInput from "./inputs/catalogValidateCertificate
 import catalogRouteTrafficToLBInput from "./inputs/catalogRouteTrafficToLBInput";
 import catalogHostInput from "./inputs/catalogHostInput";
 import catalogRuleInput from "./inputs/catalogRuleInput";
-
-const ecsClient = new ECSClient({});
-const rooutClient = new Route53Client({});
-const elbClient = new ElasticLoadBalancingV2Client({});
-const acmClient = new ACMClient({});
 
 export const createTask = async () => {
     const taskCommand = new RegisterTaskDefinitionCommand(catalogTaskInput);
@@ -59,48 +50,53 @@ export const createListenerCertificate = async () => {
     console.log(response);
     return response;
 };
-export const createHost = async () => {
-    const routeCommand = new CreateHostedZoneCommand(catalogHostInput);
-    const response = await rooutClient.send(routeCommand);
-    return response;
-};
-export const changeResourceRecord = async () => {
-    const resResCommand = new ChangeResourceRecordSetsCommand(
-        catalogResourceRecordInput
-    );
+
+export const changeResourceRecord = async (input) => {
+    const resResCommand = new ChangeResourceRecordSetsCommand(input);
     const response = await rooutClient.send(resResCommand);
     return response;
 };
-export const createRule = async () => {
-    const tgCommand = new CreateRuleCommand(catalogRuleInput);
-    const response = await elbClient.send(tgCommand);
+export const createRule = async (input) => {
+    const response = await elbClient.send(new CreateRuleCommand(input));
     return response;
 };
-export const createCertificate = async () => {
+export const requestCertificate = async () => {
     const cerCommand = new RequestCertificateCommand(
         catalogRequestCertificateInput
     );
     const response = await acmClient.send(tgCommand);
     return response;
 };
-export const describeCertificate = async () => {
+export const describeCertificate = async (input) => {
     const descCommand = new DescribeCertificateCommand(
         catalogDescribeCertificateInput
     );
     const response = await acmClient.send(descCommand);
     return response;
 };
-export const validateCertificate = async () => {
+export const validateCertificate = async (input) => {
     const validateCommand = new ChangeResourceRecordSetsCommand(
         catalogValidateCertificateInput
     );
     const response = await rooutClient.send(validateCommand);
     return response;
 };
+
+import {
+    Route53Client,
+    CreateHostedZoneCommand,
+    ChangeResourceRecordSetsCommand,
+} from "@aws-sdk/client-route-53";
+const rooutClient = new Route53Client({});
 export const createRouterTrafficToLB = async () => {
     const trCommand = new ChangeResourceRecordSetsCommand(
         catalogRouteTrafficToLBInput
     );
     const response = await rooutClient.send(trCommand);
+    return response;
+};
+export const createHost = async () => {
+    const routeCommand = new CreateHostedZoneCommand(catalogHostInput);
+    const response = await rooutClient.send(routeCommand);
     return response;
 };
