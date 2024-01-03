@@ -12,7 +12,7 @@ import {
     changeResourceRecordAalias,
 } from "./clients/route53";
 
-class App {
+export class App {
     project;
     app;
 
