@@ -4,9 +4,7 @@ import {
     CreateTargetGroupCommand,
     CreateRuleCommand,
 } from "@aws-sdk/client-elastic-load-balancing-v2";
-
 const elbClient = new ElasticLoadBalancingV2Client({});
-
 export const createTargetGroup = async () => {
     const response = await elbClient.send(
         new CreateTargetGroupCommand({

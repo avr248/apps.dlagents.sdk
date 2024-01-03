@@ -19,7 +19,7 @@ export const createHostedZone = async () => {
     return response;
 };
 
-export const changeResourceRecordNS = async () => {
+export const changeResourceRecordNS = async ({ ns1, ns2, ns3, ns4 }) => {
     const response = await rout53Client.send(
         new ChangeResourceRecordSetsCommand({
             ChangeBatch: {
@@ -29,10 +29,10 @@ export const changeResourceRecordNS = async () => {
                         ResourceRecordSet: {
                             Name: `${process.env.APP_NAME}.${process.env.PROJECT_NAME}.io`,
                             ResourceRecords: [
-                                { Value: process.env.NS1 },
-                                { Value: process.env.NS2 },
-                                { Value: process.env.NS3 },
-                                { Value: process.env.NS4 },
+                                { Value: ns1 },
+                                { Value: ns2 },
+                                { Value: ns3 },
+                                { Value: ns4 },
                             ],
                             TTL: 60,
                             Type: "NS",
@@ -84,7 +84,7 @@ export const changeResourceRecordAalias = async (recordHostedZone) => {
                             Name: `${process.env.APP_NAME}.${process.env.PROJECT_NAME}.io`,
                             Type: "A",
                             AliasTarget: {
-                                DNSName: process.env.LOAD_BALACER,
+                                DNSName: process.env.LOAD_BALANCE_DNS,
                                 EvaluateTargetHealth: false,
                                 HostedZoneId: recordHostedZone,
                             },
