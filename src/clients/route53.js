@@ -6,10 +6,10 @@ import {
 
 const rout53Client = new Route53Client({});
 
-export const createHostedZone = async (subDomain) => {
+export const createHostedZone = async () => {
     const response = await rout53Client.send(
         new CreateHostedZoneCommand({
-            Name: `${subDomain}.${process.env.BASE_DOMAIN}`,
+            Name: `${process.env.APP_NAME}.${process.env.PROJECT_NAME}.io`,
             CallerReference: new Date().toString(),
             HostedZoneConfig: {
                 PrivateZone: false,
@@ -19,14 +19,7 @@ export const createHostedZone = async (subDomain) => {
     return response;
 };
 
-export const changeResourceRecordNS = async (
-    domain,
-    ns1,
-    ns2,
-    ns3,
-    ns4,
-    hzid
-) => {
+export const changeResourceRecordNS = async () => {
     const response = await rout53Client.send(
         new ChangeResourceRecordSetsCommand({
             ChangeBatch: {
@@ -34,12 +27,12 @@ export const changeResourceRecordNS = async (
                     {
                         Action: "UPSERT",
                         ResourceRecordSet: {
-                            Name: domain,
+                            Name: `${process.env.APP_NAME}.${process.env.PROJECT_NAME}.io`,
                             ResourceRecords: [
-                                { Value: ns1 },
-                                { Value: ns2 },
-                                { Value: ns3 },
-                                { Value: ns4 },
+                                { Value: process.env.NS1 },
+                                { Value: process.env.NS2 },
+                                { Value: process.env.NS3 },
+                                { Value: process.env.NS4 },
                             ],
                             TTL: 60,
                             Type: "NS",
@@ -48,13 +41,13 @@ export const changeResourceRecordNS = async (
                 ],
                 Comment: "NS for catalog.sbms.io",
             },
-            HostedZoneId: hzid,
+            HostedZoneId: process.env.HOSTED_ZONE_ID,
         })
     );
     return response;
 };
 
-export const changeResourceRecordCNAME = async (name, value, hzid) => {
+export const changeResourceRecordCNAME = async (name, value) => {
     const response = await rout53Client.send(
         new ChangeResourceRecordSetsCommand({
             ChangeBatch: {
@@ -74,15 +67,34 @@ export const changeResourceRecordCNAME = async (name, value, hzid) => {
                     },
                 ],
             },
-            HostedZoneId: hzid,
+            HostedZoneId: process.env.HOSTED_ZONE_ID,
         })
     );
     return response;
 };
 
-export const changeResourceRecordAalias = async (input) => {
+export const changeResourceRecordAalias = async (recordHostedZone) => {
     const response = await rout53Client.send(
-        new ChangeResourceRecordSetsCommand(input)
+        new ChangeResourceRecordSetsCommand({
+            ChangeBatch: {
+                Changes: [
+                    {
+                        Action: "CREATE",
+                        ResourceRecordSet: {
+                            Name: `${process.env.APP_NAME}.${process.env.PROJECT_NAME}.io`,
+                            Type: "A",
+                            AliasTarget: {
+                                DNSName: process.env.LOAD_BALACER,
+                                EvaluateTargetHealth: false,
+                                HostedZoneId: recordHostedZone,
+                            },
+                        },
+                    },
+                ],
+                Comment: "LB distribution for catalog.sbms.io",
+            },
+            HostedZoneId: process.env.HOSTED_ZONE_ID,
+        })
     );
     return response;
 };

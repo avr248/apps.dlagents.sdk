@@ -7,10 +7,10 @@ import {
 
 const elbClient = new ElasticLoadBalancingV2Client({});
 
-export const createTargetGroup = async (project, app) => {
+export const createTargetGroup = async () => {
     const response = await elbClient.send(
         new CreateTargetGroupCommand({
-            Name: `${project}-${app}-tg`,
+            Name: `${process.env.APP_NAME}-${process.env.PROJECT_NAME}-tg`,
             Protocol: "HTTP",
             ProtocolVersion: "HTTP1",
             Port: 80,
@@ -32,39 +32,37 @@ export const createTargetGroup = async (project, app) => {
     );
     return response;
 };
-export const createListenerCertificate = async (input) => {
+export const createListenerCertificate = async (listenerid, certid) => {
     const response = await elbClient.send(
         new AddListenerCertificatesCommand({
-            ListenerArn:
-                "arn:aws:elasticloadbalancing:us-east-1:949013145064:listener/app/sbms-lb/74e5cb933b0587c9/542603f912e0ed6f",
+            ListenerArn: `arn:aws:elasticloadbalancing:${process.env.REGION}:${process.env.ACCOUNT_ID}:listener/app/${process.env.PROJECT_NAME}-lb/${process.env.LOAD_BALANCE_ID}/${listenerid}`,
             Certificates: [
                 {
-                    CertificateArn:
-                        "arn:aws:acm:us-east-1:949013145064:certificate/3bbc6a98-5dbd-4456-8990-f8cee4a52c89",
+                    CertificateArn: `arn:aws:acm:${process.env.REGION}:${process.env.ACCOUNT_ID}:certificate/${certid}`,
                 },
             ],
         })
     );
     return response;
 };
-export const createRule = async (input) => {
+export const createRule = async (tgid, listenerid) => {
     const response = await elbClient.send(
         new CreateRuleCommand({
             Actions: [
                 {
-                    TargetGroupArn:
-                        "arn:aws:elasticloadbalancing:us-east-1:949013145064:targetgroup/app-catalog-sbms-tg/fb897391f5564455",
+                    TargetGroupArn: `arn:aws:elasticloadbalancing:${process.env.REGION}:${process.env.ACCOUNT_ID}:targetgroup/${process.env.APP_NAME}-${process.env.PROJECT_NAME}-tg/${tgid}`,
                     Type: "forward",
                 },
             ],
             Conditions: [
                 {
                     Field: "host-header",
-                    Values: ["catalog.sbms.io"],
+                    Values: [
+                        `${process.env.APP_NAME}.${process.env.PROJECT_NAME}.io`,
+                    ],
                 },
             ],
-            ListenerArn:
-                "arn:aws:elasticloadbalancing:us-east-1:949013145064:listener/app/sbms-lb/74e5cb933b0587c9/542603f912e0ed6f",
+            ListenerArn: `arn:aws:elasticloadbalancing:${process.env.REGION}:${process.env.ACCOUNT_ID}:listener/app/${process.env.PROJECT_NAME}-lb/${process.env.LOAD_BALANCE_ID}/${listenerid}`,
             Priority: 10,
         })
     );

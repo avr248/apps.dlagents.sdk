@@ -6,26 +6,25 @@ import {
 
 const ecsClient = new ECSClient({});
 
-// catalogTaskInput
-export const createTask = async (project, app, port) => {
+export const createTask = async () => {
     const response = await ecsClient.send(
         new RegisterTaskDefinitionCommand({
-            family: `${project}-${app}-task`,
+            family: `${process.env.APP_NAME}-${process.env.PROJECT_NAME}-task`,
             taskRoleArn: "ecsTaskExecutionRole",
             executionRoleArn: "ecsTaskExecutionRole",
             networkMode: "awsvpc",
             containerDefinitions: [
                 {
-                    name: `${project}-${app}-container`,
-                    image: `949013145064.dkr.ecr.us-east-1.amazonaws.com/${project}-${app}-container:latest`,
+                    name: `${process.env.APP_NAME}-${process.env.PROJECT_NAME}-container`,
+                    image: `${process.env.ACCOUNT_ID}.dkr.ecr.${process.env.REGION}.amazonaws.com/${process.env.APP_NAME}-${process.env.PROJECT_NAME}-container:latest`,
                     cpu: 1,
                     memory: 3,
                     memoryReservation: 1,
                     portMappings: [
                         {
-                            containerPort: port,
+                            containerPort: process.env.APP_PORT,
                             protocol: "tcp",
-                            name: `${project}-${app}-container-${port}-tcp`,
+                            name: `${process.env.APP_NAME}-${process.env.PROJECT_NAME}-container-${process.env.APP_PORT}-tcp`,
                             appProtocol: "http",
                         },
                     ],
@@ -39,18 +38,17 @@ export const createTask = async (project, app, port) => {
     return response;
 };
 
-// catalogServiceInput
-export const createService = async (project, app, tgid) => {
+export const createService = async (tgid) => {
     const response = await ecsClient.send(
         new CreateServiceCommand({
-            cluster: `${project}-cluster`,
-            serviceName: `${project}-${app}-service`,
-            taskDefinition: `${project}-${app}-task:${last}`,
+            cluster: `${process.env.PROJECT_NAME}-cluster`,
+            serviceName: `${process.env.APP_NAME}-${process.env.PROJECT_NAME}-service`,
+            taskDefinition: `${process.env.APP_NAME}-${process.env.PROJECT_NAME}-task:${last}`,
             loadBalancers: [
                 {
-                    targetGroupArn: `arn:aws:elasticloadbalancing:us-east-1:949013145064:targetgroup/${project}-${app}-tg/${tgid}`,
-                    loadBalancerName: `${project}-lb`,
-                    containerName: `${project}-${app}-container`,
+                    targetGroupArn: `arn:aws:elasticloadbalancing:${process.env.REGION}:${process.env.ACCOUNT_ID}:targetgroup/${process.env.APP_NAME}-${process.env.PROJECT_NAME}-tg/${tgid}`,
+                    loadBalancerName: `${process.env.PROJECT_NAME}-lb`,
+                    containerName: `${process.env.APP_NAME}-${process.env.PROJECT_NAME}-container`,
                     containerPort: 443,
                 },
             ],
