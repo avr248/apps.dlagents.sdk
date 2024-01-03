@@ -11,3 +11,17 @@ import {
     changeResourceRecordCNAME,
     changeResourceRecordAalias,
 } from "./clients/route53";
+
+export default {
+    changeResourceRecordNS,
+    changeResourceRecordCNAME,
+    changeResourceRecordAalias,
+    describeCertificate,
+    createTask,
+    createService,
+    createRule,
+    createTargetGroup,
+    createListenerCertificate,
+    createHostedZone,
+    requestCertificate,
+};
