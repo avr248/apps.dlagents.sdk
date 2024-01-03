@@ -1,27 +1,13 @@
-import { requestCertificate, describeCertificate } from "./clients/acm";
-import { createTask, createService } from "./clients/ecs";
-import {
+export { requestCertificate, describeCertificate } from "./clients/acm";
+export { createTask, createService } from "./clients/ecs";
+export {
     createRule,
     createTargetGroup,
     createListenerCertificate,
 } from "./clients/elb";
-import {
+export {
     createHostedZone,
     changeResourceRecordNS,
     changeResourceRecordCNAME,
     changeResourceRecordAalias,
 } from "./clients/route53";
-
-export default {
-    changeResourceRecordNS,
-    changeResourceRecordCNAME,
-    changeResourceRecordAalias,
-    describeCertificate,
-    createTask,
-    createService,
-    createRule,
-    createTargetGroup,
-    createListenerCertificate,
-    createHostedZone,
-    requestCertificate,
-};
