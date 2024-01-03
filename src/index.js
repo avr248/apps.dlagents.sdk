@@ -1,13 +1,32 @@
-export { requestCertificate, describeCertificate } from "./clients/acm";
-export { createTask, createService } from "./clients/ecs";
-export {
+import { requestCertificate, describeCertificate } from "./clients/acm";
+import { createTask, createService } from "./clients/ecs";
+import {
     createRule,
     createTargetGroup,
     createListenerCertificate,
 } from "./clients/elb";
-export {
+import {
     createHostedZone,
     changeResourceRecordNS,
     changeResourceRecordCNAME,
     changeResourceRecordAalias,
 } from "./clients/route53";
+
+class App {
+    project;
+    app;
+
+    constructor(app, ext) {
+        this.project = process.env.PROJECT_NAME;
+        this.app = app;
+        this.project_extension = ext || process.env.PROJECT_EXTENSION;
+    }
+
+    getDomain() {
+        return `${this.app}.${this.project}.${this.project_extension}`;
+    }
+
+    createDomain() {
+        createHostedZone(this.getDomain());
+    }
+}

@@ -6,10 +6,10 @@ import {
 
 const rout53Client = new Route53Client({});
 
-export const createHostedZone = async () => {
+export const createHostedZone = async (domain) => {
     const response = await rout53Client.send(
         new CreateHostedZoneCommand({
-            Name: `${process.env.APP_NAME}.${process.env.PROJECT_NAME}.io`,
+            Name: domain,
             CallerReference: new Date().toString(),
             HostedZoneConfig: {
                 PrivateZone: false,
